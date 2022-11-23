@@ -208,6 +208,7 @@ if(NOT DEFINED BUILD_LIBPLL_SHARED AND NOT DEFINED BUILD_LIBPLL_STATIC)
 endif()
 
 add_library(pll_obj OBJECT ${LIBPLL_SOURCES})
+target_link_libraries(pll_obj PUBLIC binarytreesummation)
   
 # Build shared library
 if(BUILD_LIBPLL_SHARED)
@@ -216,7 +217,7 @@ if(BUILD_LIBPLL_SHARED)
   add_library(pll_shared  SHARED $<TARGET_OBJECTS:pll_obj>)
   target_include_directories(pll_shared INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
   set(PLL_LIBRARIES
-    pll_shared
+    pll_shared binarytreesummation
     CACHE INTERNAL "${PROJECT_NAME}: Libraries to link against")
 endif()
 
@@ -226,7 +227,7 @@ if(BUILD_LIBPLL_STATIC)
   add_library(pll_static STATIC $<TARGET_OBJECTS:pll_obj>)
   target_include_directories(pll_static INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
   set(PLL_LIBRARIES 
-    pll_static ${PLL_LIBRARIES}
+    pll_static binarytreesummation ${PLL_LIBRARIES}
     CACHE INTERNAL "${PROJECT_NAME}: Libraries to link against")
 endif()
 
@@ -237,6 +238,7 @@ set_target_properties(${PLL_LIBRARIES} PROPERTIES OUTPUT_NAME "pll")
 # Export PLL_LIBRARIES and PLL_INCLUDE_DIRS as CACHE entries
 set(PLL_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}
+  ${BinaryTreeSummation_SOURCE_DIR}/include
   CACHE INTERNAL "${PROJECT_NAME}: Include dirs")
 
 

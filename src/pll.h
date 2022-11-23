@@ -69,6 +69,10 @@
 #define PLL_EXPORT
 #endif
 
+#ifdef REPRODUCIBLE
+#include <binary_tree_summation.h>
+#endif
+
 /* macros */
 
 #define PLL_MIN(a,b) ((a) < (b) ? (a) : (b))
@@ -285,6 +289,13 @@ typedef struct pll_partition
 
   /* site repeats */
   struct pll_repeats *repeats;
+
+
+#ifdef REPRODUCIBLE
+  /* reproducible reduction context */
+  ReductionContext reduction_context;
+#endif
+
 } pll_partition_t;
 
 typedef struct pll_repeats

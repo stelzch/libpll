@@ -856,6 +856,12 @@ PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
     }
   }
 
+
+#ifdef REPRODUCIBLE
+  partition->reduction_context = new_reduction_context(sites);
+
+#endif
+
   if (pll_repeats_enabled(partition)) 
   {
     if (PLL_FAILURE == pll_repeats_initialize(partition))
