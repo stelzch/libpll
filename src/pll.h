@@ -29,6 +29,8 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "binary_tree_summation.h"
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -294,6 +296,11 @@ typedef struct pll_partition
 #ifdef REPRODUCIBLE
   /* reproducible reduction context */
   ReductionContext reduction_context;
+
+  /* Second buffer needed for derivatives, so that we can reduce df and ddf at the same time.
+   * TODO: Make the reduction work with tuples to avoid the additional communication overhead */
+  ReductionContext deriv_reduction_context1;
+  ReductionContext deriv_reduction_context2;
 #endif
 
 } pll_partition_t;
@@ -1283,7 +1290,9 @@ PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
                                                const double * sumtable,
                                                double * d_f,
                                                double * dd_f,
-                                               unsigned int attrib);
+                                               unsigned int attrib,
+                                               ReductionContext reduction_context_df,
+                                               ReductionContext reduction_context_ddf);
 
 PLL_EXPORT int pll_core_update_sumtable_repeats_avx(unsigned int states,
                                                     unsigned int sites,

@@ -408,7 +408,9 @@ PLL_EXPORT int pll_compute_likelihood_derivatives(pll_partition_t * partition,
                                                sumtable,
                                                d_f,
                                                dd_f,
-                                               partition->attributes);
+                                               partition->attributes,
+                                               partition->deriv_reduction_context1,
+                                               partition->deriv_reduction_context2);
 
   free (freqs);
   free (prop_invar);

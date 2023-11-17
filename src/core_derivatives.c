@@ -693,7 +693,7 @@ static void core_site_likelihood_derivatives(unsigned int states,
   }
 }
 
-PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
+PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(unsigned int states,
                                                unsigned int sites,
                                                unsigned int rate_cats,
                                                const double * rate_weights,
@@ -711,7 +711,9 @@ PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
                                                const double * sumtable,
                                                double * d_f,
                                                double * dd_f,
-                                               unsigned int attrib)
+                                               unsigned int attrib,
+                                               ReductionContext reduction_context,
+                                               ReductionContext reduction_context2)
 {
   unsigned int n, i, j;
   unsigned int ef_sites;
@@ -772,6 +774,7 @@ PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
   }
 
 // SSE3 vectorization in missing as of now
+#if 0
 #ifdef HAVE_SSE3
   if (attrib & PLL_ATTRIB_ARCH_SSE && PLL_STAT(sse3_present))
   {
@@ -821,6 +824,9 @@ PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
   }
   else
 #endif
+#endif
+    double *df_buffer = get_reduction_buffer(reduction_context);
+    double *ddf_buffer = get_reduction_buffer(reduction_context2);
   {
     sum = sumtable;
     invariant_ptr = invariant;
@@ -843,10 +849,35 @@ PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
       /* build derivatives */
       deriv1 = (-site_lk[1] / site_lk[0]);
       deriv2 = (deriv1 * deriv1 - (site_lk[2] / site_lk[0]));
+#ifdef REPRODUCIBLE
+      double df_val = pattern_weights[n] * deriv1;
+      double ddf_val = pattern_weights[n] * deriv2;
+      df_buffer[n] = df_val;
+      ddf_buffer[n] = ddf_val;
+      //store_summand(reduction_context, n, df_val);
+      //store_summand(reduction_context2, n, ddf_val);
+      //printf("site %i: df_buffer = %f\tarr = %f\n", n, df_buffer[n], arr[n]);
+      //*d_f += pattern_weights[n] * deriv1;
+      //*dd_f += pattern_weights[n] * deriv2;
+
+#else
+      assert(0);
       *d_f += pattern_weights[n] * deriv1;
       *dd_f += pattern_weights[n] * deriv2;
+#endif
     }
   }
+
+#ifdef REPRODUCIBLE
+    double rd_f = reproducible_reduce(reduction_context);
+    double rdd_f = reproducible_reduce(reduction_context2);
+    //printf("rd_f: %f\tsum(arr): %f\td_f val post: %f\trbuffer_acc: %f\n", rd_f, bufferAcc, *d_f, rbufferAcc);
+
+    *d_f += rd_f;
+    *dd_f += rdd_f;
+
+
+#endif
 
   /* account for ascertainment bias correction */
   if (attrib & PLL_ATTRIB_AB_MASK)
