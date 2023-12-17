@@ -21,6 +21,7 @@
 
 #include <limits.h>
 #include "pll.h"
+#include <ipc_debug.h>
 
 PLL_EXPORT int pll_core_update_sumtable_repeats(unsigned int states,
                                                 unsigned int sites,
@@ -870,7 +871,10 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
 
 #ifdef REPRODUCIBLE
     double rd_f = reproducible_reduce(reduction_context);
+    debug_ipc_assert_equal_double(rd_f);
+
     double rdd_f = reproducible_reduce(reduction_context2);
+    debug_ipc_assert_equal_double(rdd_f);
     //printf("rd_f: %f\tsum(arr): %f\td_f val post: %f\trbuffer_acc: %f\n", rd_f, bufferAcc, *d_f, rbufferAcc);
 
     *d_f += rd_f;
@@ -878,6 +882,8 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
 
 
 #endif
+  debug_ipc_assert_equal_double(*d_f);
+  debug_ipc_assert_equal_double(*dd_f);
 
   /* account for ascertainment bias correction */
   if (attrib & PLL_ATTRIB_AB_MASK)
