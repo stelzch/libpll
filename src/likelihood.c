@@ -20,6 +20,7 @@
 */
 
 #include "pll.h"
+#include "ipc_debug.h"
 
 static double compute_asc_bias_correction(double logl_base,
                                           unsigned int sum_w,
@@ -593,6 +594,10 @@ PLL_EXPORT double pll_compute_edge_loglikelihood(pll_partition_t * partition,
                                                  double * persite_lnl)
 {
   double logl;
+
+  debug_ipc_assert_equal_uint(matrix_index);
+  debug_ipc_assert_equal_uint(parent_clv_index);
+  debug_ipc_assert_equal_uint(child_clv_index);
   
   if (pll_repeats_enabled(partition) 
       && (partition->repeats->pernode_ids[parent_clv_index] 

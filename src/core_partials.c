@@ -20,6 +20,7 @@
 */
 
 #include "pll.h"
+#include <ipc_debug.h>
 
 static void fill_parent_scaler(unsigned int scaler_size,
                                unsigned int * parent_scaler,
@@ -622,6 +623,13 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
                                            const unsigned int * right_scaler,
                                            unsigned int attrib)
 {
+  const double *destination_clv = parent_clv;
+  DEBUG_IPC_CHECKPOINT();
+  debug_ipc_assert_equal_array(left_matrix, states * states * sizeof(double));
+  debug_ipc_assert_equal_array(right_matrix, states * states * sizeof(double));
+  debug_ipc_assert_equal_mpi_double_array(left_clv, states * rate_cats * sites);
+  debug_ipc_assert_equal_mpi_double_array(right_clv, states * rate_cats * sites);
+
   unsigned int i,j,k,n;
 
   unsigned int scale_mode;  /* 0 = none, 1 = per-site, 2 = per-rate */
@@ -633,6 +641,7 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
 
   unsigned int span = states * rate_cats;
 
+#if 0
 #ifdef HAVE_SSE3
   if (attrib & PLL_ATTRIB_ARCH_SSE && PLL_STAT(sse3_present))
   {
@@ -686,6 +695,7 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
                                     attrib);
     return;
   }
+#endif
 #endif
 
   /* init scaling-related stuff */
@@ -762,6 +772,8 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
       parent_scaler[n] += 1;
     }
   }
+
+  debug_ipc_assert_equal_mpi_double_array(destination_clv, states * rate_cats * sites);
 }
 
 PLL_EXPORT void pll_core_update_partial_repeats_generic(unsigned int states,
