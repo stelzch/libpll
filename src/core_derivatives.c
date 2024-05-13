@@ -774,6 +774,8 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
     }
   }
 
+debug_ipc_assert_equal_array(diagptable, rate_cats * states * 4 * sizeof(double));
+
 // SSE3 vectorization in missing as of now
 #if 0
 #ifdef HAVE_SSE3
@@ -870,6 +872,8 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
   }
 
 #ifdef REPRODUCIBLE
+    debug_ipc_assert_equal_mpi_double_array(df_buffer, ef_sites);
+    debug_ipc_assert_equal_mpi_double_array(ddf_buffer, ef_sites);
     double rd_f = reproducible_reduce(reduction_context);
     debug_ipc_assert_equal_double(rd_f);
 

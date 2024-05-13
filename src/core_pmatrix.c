@@ -19,6 +19,7 @@
     Schloss-Wolfsbrunnenweg 35, D-69118 Heidelberg, Germany
 */
 
+#include "ipc_debug.h"
 #include "pll.h"
 
 PLL_EXPORT int pll_core_update_pmatrix(double ** pmatrix,
@@ -46,7 +47,24 @@ PLL_EXPORT int pll_core_update_pmatrix(double ** pmatrix,
   double * evals;
   double * pmat;
 
+  DEBUG_IPC_CHECKPOINT();
+  debug_ipc_assert_equal_uint(states);
+  debug_ipc_assert_equal_uint(rate_cats);
 
+  debug_ipc_assert_equal_array(matrix_indices, count * sizeof(unsigned int));
+  debug_ipc_assert_equal_array(params_indices, rate_cats * sizeof(unsigned int));
+  debug_ipc_assert_equal_array(rates, rate_cats * sizeof(double));
+  debug_ipc_assert_equal_array(branch_lengths, count * sizeof(double));
+
+  // Compare eigenvectors & eigenvalues
+  for (unsigned int n = 0; n < rate_cats; ++n) {
+    debug_ipc_assert_equal_array(eigenvals[params_indices[n]], sizeof(double) * states);
+    debug_ipc_assert_equal_array(eigenvecs[params_indices[n]], sizeof(double) * states * states_padded);
+    debug_ipc_assert_equal_array(inv_eigenvecs[params_indices[n]], sizeof(double) * states * states_padded);
+  }
+
+
+#if 0
   #ifdef HAVE_SSE3
   if (attrib & PLL_ATTRIB_ARCH_SSE && PLL_STAT(sse3_present))
   {
@@ -170,6 +188,7 @@ PLL_EXPORT int pll_core_update_pmatrix(double ** pmatrix,
     states_padded = (states+3) & 0xFFFFFFFC;
   }
   #endif
+#endif
 
   expd = (double *)malloc(states * sizeof(double));
   temp = (double *)malloc(states*states*sizeof(double));
