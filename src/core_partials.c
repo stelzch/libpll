@@ -623,7 +623,6 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
                                            const unsigned int * right_scaler,
                                            unsigned int attrib)
 {
-  const double *destination_clv = parent_clv;
   DEBUG_IPC_CHECKPOINT();
   debug_ipc_assert_equal_array(left_matrix, states * states * sizeof(double));
   debug_ipc_assert_equal_array(right_matrix, states * states * sizeof(double));
@@ -641,7 +640,6 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
 
   unsigned int span = states * rate_cats;
 
-#if 0
 #ifdef HAVE_SSE3
   if (attrib & PLL_ATTRIB_ARCH_SSE && PLL_STAT(sse3_present))
   {
@@ -695,7 +693,6 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
                                     attrib);
     return;
   }
-#endif
 #endif
 
   /* init scaling-related stuff */
@@ -773,7 +770,6 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
     }
   }
 
-  debug_ipc_assert_equal_mpi_double_array(destination_clv, states * rate_cats * sites);
 }
 
 PLL_EXPORT void pll_core_update_partial_repeats_generic(unsigned int states,

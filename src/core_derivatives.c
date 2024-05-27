@@ -345,6 +345,7 @@ PLL_EXPORT int pll_core_update_sumtable_ii(unsigned int states,
 
   unsigned int states_padded = states;
 
+#if 0
 #ifdef HAVE_SSE3
   if (attrib & PLL_ATTRIB_ARCH_SSE && PLL_STAT(sse3_present))
   {
@@ -395,6 +396,7 @@ PLL_EXPORT int pll_core_update_sumtable_ii(unsigned int states,
                                            sumtable,
                                            attrib);
   }
+#endif
 #endif
 
   unsigned int min_scaler;
@@ -775,6 +777,15 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
   }
 
 debug_ipc_assert_equal_array(diagptable, rate_cats * states * 4 * sizeof(double));
+debug_ipc_assert_equal_array(rate_weights, rate_cats * sizeof(double));
+debug_ipc_assert_equal_array(prop_invar, rate_cats * sizeof(double));
+debug_ipc_assert_equal_mpi_double_array(sumtable, sites * rate_cats * states);
+debug_ipc_assert_equal_double(branch_length);
+for (unsigned i = 0; i < rate_cats; ++i) {
+    debug_ipc_assert_equal_array(eigenvals[i], sizeof(double) * states);
+    debug_ipc_assert_equal_double(prop_invar[i]);
+    debug_ipc_assert_equal_double(rates[i]);
+}
 
 // SSE3 vectorization in missing as of now
 #if 0
