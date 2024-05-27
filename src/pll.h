@@ -29,8 +29,6 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "binary_tree_summation.h"
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -294,13 +292,10 @@ typedef struct pll_partition
 
 
 #ifdef REPRODUCIBLE
-  /* reproducible reduction context */
-  ReductionContext reduction_context;
-
   /* Second buffer needed for derivatives, so that we can reduce df and ddf at the same time.
    * TODO: Make the reduction work with tuples to avoid the additional communication overhead */
-  ReductionContext deriv_reduction_context1;
-  ReductionContext deriv_reduction_context2;
+  ReductionContext reduction_context1;
+  ReductionContext reduction_context2;
 #endif
 
 } pll_partition_t;
@@ -656,7 +651,6 @@ extern "C" {
 PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
                                                   unsigned int clv_buffers,
                                                   unsigned int states,
-                                                  unsigned int parallel, // TODO: remove this flag
                                                   unsigned int sites_start_idx,
                                                   unsigned int sites,
                                                   unsigned int rate_matrices,

@@ -20,6 +20,7 @@
 */
 
 #include "pll.h"
+#include "binary_tree_summation.h"
 
 __thread int pll_errno;
 __thread char pll_errmsg[200] = {0};
@@ -424,7 +425,6 @@ static int create_charmap(pll_partition_t * partition, const pll_state_t * userm
 PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
                                                   unsigned int clv_buffers,
                                                   unsigned int states,
-                                                  unsigned int parallel,
                                                   unsigned int sites_start_idx,
                                                   unsigned int sites,
                                                   unsigned int rate_matrices,
@@ -860,10 +860,9 @@ PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
 
 
 #ifdef REPRODUCIBLE
-  if (parallel) {
-    partition->reduction_context = new_reduction_context(sites_start_idx, sites);
-    partition->deriv_reduction_context1 = new_reduction_context(sites_start_idx, sites);
-    partition->deriv_reduction_context2 = new_reduction_context(sites_start_idx, sites);
+  if (sites_start_idx >= 0) {
+    partition->reduction_context1 = new_reduction_context(sites_start_idx, sites);
+    partition->reduction_context2 = new_reduction_context(sites_start_idx, sites);
   }
 #endif
 
@@ -880,18 +879,12 @@ PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
 
 PLL_EXPORT void pll_partition_destroy(pll_partition_t * partition)
 {
+#ifdef REPRODUCIBLE
+  free_reduction_context(partition->reduction_context1);
+  free_reduction_context(partition->reduction_context2);
+#endif
+
   dealloc_partition_data(partition);
-  // TODO: correctly free reduction context
-  /*
-  if (partition->reduction_context) {
-      free_reduction_context(partition->reduction_context);
-      partition->reduction_context = NULL;
-  }
-  if (partition->reduction_context2) {
-      free_reduction_context(partition->reduction_context2);
-      partition->reduction_context2 = NULL;
-  }
-   */
 }
 
 static int set_tipchars_4x4(pll_partition_t * partition,

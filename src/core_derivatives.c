@@ -21,7 +21,6 @@
 
 #include <limits.h>
 #include "pll.h"
-#include <ipc_debug.h>
 
 PLL_EXPORT int pll_core_update_sumtable_repeats(unsigned int states,
                                                 unsigned int sites,
@@ -345,7 +344,6 @@ PLL_EXPORT int pll_core_update_sumtable_ii(unsigned int states,
 
   unsigned int states_padded = states;
 
-#if 0
 #ifdef HAVE_SSE3
   if (attrib & PLL_ATTRIB_ARCH_SSE && PLL_STAT(sse3_present))
   {
@@ -396,7 +394,6 @@ PLL_EXPORT int pll_core_update_sumtable_ii(unsigned int states,
                                            sumtable,
                                            attrib);
   }
-#endif
 #endif
 
   unsigned int min_scaler;
@@ -776,17 +773,6 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
     }
   }
 
-debug_ipc_assert_equal_array(diagptable, rate_cats * states * 4 * sizeof(double));
-debug_ipc_assert_equal_array(rate_weights, rate_cats * sizeof(double));
-debug_ipc_assert_equal_array(prop_invar, rate_cats * sizeof(double));
-debug_ipc_assert_equal_mpi_double_array(sumtable, sites * rate_cats * states);
-debug_ipc_assert_equal_double(branch_length);
-for (unsigned i = 0; i < rate_cats; ++i) {
-    debug_ipc_assert_equal_array(eigenvals[i], sizeof(double) * states);
-    debug_ipc_assert_equal_double(prop_invar[i]);
-    debug_ipc_assert_equal_double(rates[i]);
-}
-
 // SSE3 vectorization in missing as of now
 #if 0
 #ifdef HAVE_SSE3
@@ -868,14 +854,7 @@ for (unsigned i = 0; i < rate_cats; ++i) {
       double ddf_val = pattern_weights[n] * deriv2;
       df_buffer[n] = df_val;
       ddf_buffer[n] = ddf_val;
-      //store_summand(reduction_context, n, df_val);
-      //store_summand(reduction_context2, n, ddf_val);
-      //printf("site %i: df_buffer = %f\tarr = %f\n", n, df_buffer[n], arr[n]);
-      //*d_f += pattern_weights[n] * deriv1;
-      //*dd_f += pattern_weights[n] * deriv2;
-
 #else
-      assert(0);
       *d_f += pattern_weights[n] * deriv1;
       *dd_f += pattern_weights[n] * deriv2;
 #endif
@@ -883,22 +862,12 @@ for (unsigned i = 0; i < rate_cats; ++i) {
   }
 
 #ifdef REPRODUCIBLE
-    debug_ipc_assert_equal_mpi_double_array(df_buffer, ef_sites);
-    debug_ipc_assert_equal_mpi_double_array(ddf_buffer, ef_sites);
     double rd_f = reproducible_reduce(reduction_context);
-    debug_ipc_assert_equal_double(rd_f);
-
     double rdd_f = reproducible_reduce(reduction_context2);
-    debug_ipc_assert_equal_double(rdd_f);
-    //printf("rd_f: %f\tsum(arr): %f\td_f val post: %f\trbuffer_acc: %f\n", rd_f, bufferAcc, *d_f, rbufferAcc);
 
     *d_f += rd_f;
     *dd_f += rdd_f;
-
-
 #endif
-  debug_ipc_assert_equal_double(*d_f);
-  debug_ipc_assert_equal_double(*dd_f);
 
   /* account for ascertainment bias correction */
   if (attrib & PLL_ATTRIB_AB_MASK)

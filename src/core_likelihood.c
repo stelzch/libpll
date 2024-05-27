@@ -1222,7 +1222,6 @@ double pll_core_edge_loglikelihood_ii(unsigned int states,
   */
   unsigned int states_padded = states;
 
-#if 0
   #ifdef HAVE_SSE3
   if (attrib & PLL_ATTRIB_ARCH_SSE && PLL_STAT(sse3_present))
   {
@@ -1358,7 +1357,6 @@ double pll_core_edge_loglikelihood_ii(unsigned int states,
     states_padded = (states+3) & 0xFFFFFFFC;
   }
   #endif
-#endif
 
   unsigned int site_scalings;
   unsigned int * rate_scalings = NULL;

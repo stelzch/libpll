@@ -20,7 +20,6 @@
 */
 
 #include "pll.h"
-#include <ipc_debug.h>
 
 static void fill_parent_scaler(unsigned int scaler_size,
                                unsigned int * parent_scaler,
@@ -623,12 +622,6 @@ PLL_EXPORT void pll_core_update_partial_ii(unsigned int states,
                                            const unsigned int * right_scaler,
                                            unsigned int attrib)
 {
-  DEBUG_IPC_CHECKPOINT();
-  debug_ipc_assert_equal_array(left_matrix, states * states * sizeof(double));
-  debug_ipc_assert_equal_array(right_matrix, states * states * sizeof(double));
-  debug_ipc_assert_equal_mpi_double_array(left_clv, states * rate_cats * sites);
-  debug_ipc_assert_equal_mpi_double_array(right_clv, states * rate_cats * sites);
-
   unsigned int i,j,k,n;
 
   unsigned int scale_mode;  /* 0 = none, 1 = per-site, 2 = per-rate */
