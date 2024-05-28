@@ -711,9 +711,12 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
                                                const double * sumtable,
                                                double * d_f,
                                                double * dd_f,
-                                               unsigned int attrib,
-                                               ReductionContext reduction_context,
-                                               ReductionContext reduction_context2)
+                                               unsigned int attrib
+#ifdef REPRODUCIBLE
+                                               ,ReductionContext reduction_context,
+                                               ReductionContext reduction_context2
+#endif
+                                               )
 {
   unsigned int n, i, j;
   unsigned int ef_sites;
@@ -825,8 +828,10 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
   else
 #endif
 #endif
+#ifdef REPRODUCIBLE
     double *df_buffer = get_reduction_buffer(reduction_context);
     double *ddf_buffer = get_reduction_buffer(reduction_context2);
+#endif
   {
     sum = sumtable;
     invariant_ptr = invariant;

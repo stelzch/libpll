@@ -1284,9 +1284,12 @@ PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
                                                const double * sumtable,
                                                double * d_f,
                                                double * dd_f,
-                                               unsigned int attrib,
-                                               ReductionContext reduction_context_df,
-                                               ReductionContext reduction_context_ddf);
+                                               unsigned int attrib
+#ifdef REPRODUCIBLE
+                                               ,ReductionContext reduction_context_df,
+                                               ReductionContext reduction_context_ddf
+#endif
+                                            );
 
 PLL_EXPORT int pll_core_update_sumtable_repeats_avx(unsigned int states,
                                                     unsigned int sites,

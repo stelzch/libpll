@@ -6,6 +6,8 @@ if(NOT DEFINED binarytreesummation_version)
     set(binarytreesummation_version main)
 endif()
 include(FetchContent)
+
+if(DEFINED REPORDUCIBLE)
 FetchContent_Declare(
         binarytreesummation
         GIT_REPOSITORY https://git.ch-st.de/christoph/binary_tree_summation.git
@@ -13,6 +15,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(binarytreesummation)
 add_definitions(-DREPRODUCIBLE)
+endif()
 
 add_subdirectory(src)
 

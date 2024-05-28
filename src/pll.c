@@ -20,7 +20,10 @@
 */
 
 #include "pll.h"
+
+#ifdef REPRODUCIBLE
 #include "binary_tree_summation.h"
+#endif
 
 __thread int pll_errno;
 __thread char pll_errmsg[200] = {0};
