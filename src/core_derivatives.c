@@ -693,7 +693,7 @@ static void core_site_likelihood_derivatives(unsigned int states,
   }
 }
 
-PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(unsigned int states,
+PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
                                                unsigned int sites,
                                                unsigned int rate_cats,
                                                const double * rate_weights,
@@ -713,7 +713,8 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
                                                double * dd_f,
                                                unsigned int attrib,
                                                ReductionContext reduction_context,
-                                               ReductionContext reduction_context2)
+                                               ReductionContext reduction_context2,
+                                               double *reduction_buffer)
 {
   unsigned int n, i, j;
   unsigned int ef_sites;
@@ -825,8 +826,21 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
   else
 #endif
 #endif
-    double *df_buffer = get_reduction_buffer(reduction_context);
-    double *ddf_buffer = get_reduction_buffer(reduction_context2);
+    double *df_buffer;
+    double *ddf_buffer;
+#if defined(REPRODUCIBILITY) && REPRODUCIBILITY == BINARYTREESUMMATION
+    df_buffer = get_reduction_buffer(reduction_context);
+    ddf_buffer = get_reduction_buffer(reduction_context2);
+#elif defined(REPRODUCIBILITY) && REPRODUCIBILITY == REPROBLAS
+    df_buffer = reduction_buffer;
+    ddf_buffer = &reduction_buffer[ef_sites];
+
+    // Keep the two derivatives df/ddf in a contiguous memory area so that only
+    // a single MPI_Reduce call is needed
+    char *local_binned = malloc(binned_dbsize(3) * 2);
+    double_binned *local_df = (double_binned *) &local_binned[0];
+    double_binned *local_ddf = (double_binned *) &local_binned[binned_dbsize(3)];
+#endif
   {
     sum = sumtable;
     invariant_ptr = invariant;
@@ -849,24 +863,33 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
       /* build derivatives */
       deriv1 = (-site_lk[1] / site_lk[0]);
       deriv2 = (deriv1 * deriv1 - (site_lk[2] / site_lk[0]));
-#ifdef REPRODUCIBLE
-      double df_val = pattern_weights[n] * deriv1;
-      double ddf_val = pattern_weights[n] * deriv2;
+      const double df_val = pattern_weights[n] * deriv1;
+      const double ddf_val = pattern_weights[n] * deriv2;
+#if defined(REPRODUCIBILITY)
       df_buffer[n] = df_val;
       ddf_buffer[n] = ddf_val;
 #else
-      *d_f += pattern_weights[n] * deriv1;
-      *dd_f += pattern_weights[n] * deriv2;
+      *d_f += df_val;
+      *dd_f += ddf_val;
 #endif
     }
   }
 
-#ifdef REPRODUCIBLE
+#if defined(REPRODUCIBILITY) && REPRODUCIBILITY == BINARYTREESUMMATION
     double rd_f = reproducible_reduce(reduction_context);
     double rdd_f = reproducible_reduce(reduction_context2);
 
     *d_f += rd_f;
     *dd_f += rdd_f;
+#elif defined(REPRODUCIBILITY) && REPRODUCIBILITY == REPROBLAS
+    double_binned *result;
+    binnedBLAS_dbdsum(3, ef_sites, &df_buffer[0], 1, local_df);
+    binnedBLAS_dbdsum(3, ef_sites, &ddf_buffer[0], 1, local_ddf);
+
+    MPI_Reduce(local_df, local_df, 2, binnedMPI_DOUBLE_BINNED(3), binnedMPI_DBDBADD(3), 0, comm);
+
+
+
 #endif
 
   /* account for ascertainment bias correction */
