@@ -291,11 +291,13 @@ typedef struct pll_partition
   struct pll_repeats *repeats;
 
 
+#ifdef REPRODUCIBLE
   /* Second buffer needed for derivatives, so that we can reduce df and ddf at the same time.
    * TODO: Make the reduction work with tuples to avoid the additional communication overhead */
   ReductionContext reduction_context1;
   ReductionContext reduction_context2;
-  double *reduction_buffer;
+#endif
+
 } pll_partition_t;
 
 typedef struct pll_repeats

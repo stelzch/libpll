@@ -208,7 +208,7 @@ if(NOT DEFINED BUILD_LIBPLL_SHARED AND NOT DEFINED BUILD_LIBPLL_STATIC)
 endif()
 
 add_library(pll_obj OBJECT ${LIBPLL_SOURCES})
-target_link_libraries(pll_obj PUBLIC binarytreesummation reproblas)
+target_link_libraries(pll_obj PUBLIC binarytreesummation)
   
 # Build shared library
 if(BUILD_LIBPLL_SHARED)
@@ -226,7 +226,7 @@ if(BUILD_LIBPLL_STATIC)
   message(STATUS "Libpll static build enabled")
   add_library(pll_static STATIC $<TARGET_OBJECTS:pll_obj>)
   target_include_directories(pll_static INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-  target_link_libraries(pll_static PUBLIC binarytreesummation reproblas)
+  target_link_libraries(pll_static PUBLIC binarytreesummation)
   set(PLL_LIBRARIES 
     pll_static ${PLL_LIBRARIES}
     CACHE INTERNAL "${PROJECT_NAME}: Libraries to link against")

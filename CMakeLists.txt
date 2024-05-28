@@ -12,11 +12,7 @@ FetchContent_Declare(
         GIT_TAG ${binarytreesummation_version}
 )
 FetchContent_MakeAvailable(binarytreesummation)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(reproblas REQUIRED IMPORTED_TARGET reproblas)
-if (DEFINED USE_REPRODUCIBLE)
-    add_definitions(-DREPRODUCIBLE=${USE_REPRODUCIBLE})
-endif()
+add_definitions(-DREPRODUCIBLE)
 
 add_subdirectory(src)
 

@@ -859,13 +859,11 @@ PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
   }
 
 
-#if defined(REPRODUCIBILITY) && REPRODUCIBILITY == BINARYTREESUMMATION
+#ifdef REPRODUCIBLE
   if (sites_start_idx >= 0) {
     partition->reduction_context1 = new_reduction_context(sites_start_idx, sites);
     partition->reduction_context2 = new_reduction_context(sites_start_idx, sites);
   }
-#elif defined(REPRODUCIBILITY) && REPRODUCIBILITY == REPROBLAS
-  partition->reduction_buffer = (double *) pll_aligned_alloc(sites * 2 * sizeof(double), PLL_ALIGNMENT_AVX);
 #endif
 
   if (pll_repeats_enabled(partition)) 
@@ -881,11 +879,9 @@ PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
 
 PLL_EXPORT void pll_partition_destroy(pll_partition_t * partition)
 {
-#if defined(REPRODUCIBILITY) && REPRODUCIBILITY == BINARYTREESUMMATION
+#ifdef REPRODUCIBLE
   free_reduction_context(partition->reduction_context1);
   free_reduction_context(partition->reduction_context2);
-#elif defined(REPRODUCIBILITY) && REPRODUCIBILITY == REPROBLAS
-  pll_aligned_free(partition->reduction_buffer);
 #endif
 
   dealloc_partition_data(partition);
