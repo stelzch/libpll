@@ -14,7 +14,6 @@ FetchContent_Declare(
         GIT_TAG ${binarytreesummation_version}
 )
 FetchContent_MakeAvailable(binarytreesummation)
-add_definitions(-DREPRODUCIBLE)
 endif()
 
 add_subdirectory(src)

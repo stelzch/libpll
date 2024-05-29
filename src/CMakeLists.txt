@@ -210,6 +210,7 @@ endif()
 add_library(pll_obj OBJECT ${LIBPLL_SOURCES})
 if(DEFINED REPRODUCIBLE)
 target_link_libraries(pll_obj PUBLIC binarytreesummation)
+target_compile_definitions(pll_obj PUBLIC REPRODUCIBLE=${REPRODUCIBLE})
 endif()
   
 # Build shared library
