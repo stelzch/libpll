@@ -651,6 +651,7 @@ extern "C" {
 PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
                                                   unsigned int clv_buffers,
                                                   unsigned int states,
+                                                  void *comm,
                                                   unsigned int sites_start_idx,
                                                   unsigned int sites,
                                                   unsigned int rate_matrices,

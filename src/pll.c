@@ -428,6 +428,7 @@ static int create_charmap(pll_partition_t * partition, const pll_state_t * userm
 PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
                                                   unsigned int clv_buffers,
                                                   unsigned int states,
+                                                  void *comm,
                                                   unsigned int sites_start_idx,
                                                   unsigned int sites,
                                                   unsigned int rate_matrices,
@@ -864,8 +865,8 @@ PLL_EXPORT pll_partition_t * pll_partition_create(unsigned int tips,
 
 #ifdef REPRODUCIBLE
   if (sites_start_idx >= 0) {
-    partition->reduction_context1 = new_reduction_context(sites_start_idx, sites);
-    partition->reduction_context2 = new_reduction_context(sites_start_idx, sites);
+    partition->reduction_context1 = new_reduction_context_comm(sites_start_idx, sites, comm);
+    partition->reduction_context2 = new_reduction_context_comm(sites_start_idx, sites, comm);
   }
 #endif
 
