@@ -777,7 +777,9 @@ PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(u
   }
 
 // SSE3 vectorization in missing as of now
-#if 0
+// The SIMD versions have a remainder loop that could potentially change the computation order depending on the
+// site/partition distribution, hindering reproducibility
+#ifndef REPRODUCIBLE
 #ifdef HAVE_SSE3
   if (attrib & PLL_ATTRIB_ARCH_SSE && PLL_STAT(sse3_present))
   {
