@@ -693,7 +693,7 @@ static void core_site_likelihood_derivatives(unsigned int states,
   }
 }
 
-PLL_EXPORT int __attribute__((optimize("O0"))) pll_core_likelihood_derivatives(unsigned int states,
+PLL_EXPORT int pll_core_likelihood_derivatives(unsigned int states,
                                                unsigned int sites,
                                                unsigned int rate_cats,
                                                const double * rate_weights,
