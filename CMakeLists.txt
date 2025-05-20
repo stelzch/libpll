@@ -7,13 +7,9 @@ if(NOT DEFINED binarytreesummation_version)
 endif()
 include(FetchContent)
 
-if(DEFINED REPORDUCIBLE)
-FetchContent_Declare(
-        binarytreesummation
-        GIT_REPOSITORY https://git.ch-st.de/christoph/binary_tree_summation.git
-        GIT_TAG ${binarytreesummation_version}
-)
-FetchContent_MakeAvailable(binarytreesummation)
+if(DEFINED REPRODUCIBLE)
+    #FetchContent_MakeAvailable(reprored)
+add_definitions(-DREPRODUCIBLE)
 endif()
 
 add_subdirectory(src)
